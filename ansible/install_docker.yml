@@ -1,0 +1,28 @@
+# =========================
+# Ansible Playbook to Configure Web Server
+# =========================
+- name: Configure Web Server
+  hosts: all  # Targets all hosts in the inventory
+  become: yes  # Enables privilege escalation (root access)
+  become_method: sudo  # Uses sudo for privilege escalation
+
+  tasks:
+  
+    # Ensure the system is updated to the latest package versions
+    - name: Ensure system is updated
+      package:
+        name: "*"  # Updates all installed packages
+        state: latest  # Ensures the latest versions are installed
+
+    # Install Docker if not already installed
+    - name: Install Docker
+      package:
+        name: docker  # Specifies the Docker package
+        state: present  # Ensures Docker is installed
+
+    # Start Docker service and enable it to start on system boot
+    - name: Start Docker and enable it on boot
+      service:
+        name: docker  # Specifies the Docker service
+        state: started  # Ensures Docker is running
+        enabled: yes  # Ensures Docker starts on boot
