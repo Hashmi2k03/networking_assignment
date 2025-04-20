@@ -1,7 +1,7 @@
 name: Deploy with Ansible
 
 on:
-  workflow_dispatch: # allows manual trigger
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -29,12 +29,14 @@ jobs:
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > labsuser.pem
           chmod 400 labsuser.pem
 
+      - name: Create Ansible Inventory
+        run: |
+          mkdir -p ansible
+          echo "[MyEC2Instance]" > ansible/inventory.ini
+          echo "${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USER }} ansible_ssh_private_key_file=./labsuser.pem" >> ansible/inventory.ini
+
       - name: Run Ansible Playbook
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
-          run: |
-            echo "[MyEC2Instance]" > ansible/inventory.ini
-            echo "${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USER }} ansible_ssh_private_key_file=./labsuser.pem" >> ansible/inventory.ini
-
-
+        run: |
           ansible-playbook -i ansible/inventory.ini ansible/install_docker.yml
